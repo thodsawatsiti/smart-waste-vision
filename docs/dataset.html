@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dataset Overview - Garbage Classification</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 40px;
+            min-height: 100vh;
+        }
+
+        .title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .title h1 {
+            font-size: 28px;
+            font-weight: 800;
+            color: #f8fafc;
+            margin-bottom: 8px;
+        }
+
+        .title p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        /* Flow Diagram */
+        .flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 50px;
+            flex-wrap: wrap;
+        }
+
+        .flow-box {
+            background: #1e293b;
+            border: 2px solid #334155;
+            border-radius: 12px;
+            padding: 20px 28px;
+            text-align: center;
+            min-width: 180px;
+        }
+
+        .flow-box .icon { font-size: 32px; margin-bottom: 8px; }
+        .flow-box .label { font-weight: 700; font-size: 16px; color: #f8fafc; }
+        .flow-box .sub { font-size: 12px; color: #94a3b8; margin-top: 4px; }
+
+        .flow-box.source { border-color: #6366f1; }
+        .flow-box.process { border-color: #f59e0b; }
+        .flow-box.result { border-color: #22c55e; }
+
+        .flow-arrow {
+            font-size: 28px;
+            color: #475569;
+            font-weight: 700;
+        }
+
+        /* Dataset Summary */
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 50px;
+        }
+
+        .stat-card {
+            background: #1e293b;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .stat-card .number {
+            font-size: 32px;
+            font-weight: 800;
+            color: #818cf8;
+        }
+
+        .stat-card .desc {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        /* Split Section */
+        .split-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin-bottom: 50px;
+        }
+
+        .split-box {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 24px;
+            border: 2px solid #334155;
+        }
+
+        .split-box h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .split-box .split-desc {
+            font-size: 13px;
+            color: #94a3b8;
+            margin-bottom: 16px;
+        }
+
+        .split-box.train { border-color: #3b82f6; }
+        .split-box.train h3 { color: #60a5fa; }
+
+        .split-box.val { border-color: #a855f7; }
+        .split-box.val h3 { color: #c084fc; }
+
+        .split-bar {
+            display: flex;
+            height: 16px;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .split-bar .train-bar { background: #3b82f6; flex: 80; }
+        .split-bar .val-bar { background: #a855f7; flex: 20; }
+
+        .split-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .split-labels .train-label { color: #60a5fa; }
+        .split-labels .val-label { color: #c084fc; }
+
+        /* Class Table */
+        .class-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .class-table th {
+            text-align: left;
+            padding: 10px 12px;
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+            border-bottom: 1px solid #334155;
+        }
+
+        .class-table td {
+            padding: 10px 12px;
+            font-size: 14px;
+            border-bottom: 1px solid #1e293b;
+        }
+
+        .class-table tr:hover td { background: #0f172a40; }
+
+        .class-name {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+        }
+
+        .class-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .bar-cell { width: 40%; }
+
+        .count-bar {
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            padding-left: 8px;
+            font-size: 11px;
+            font-weight: 600;
+            color: white;
+            min-width: 40px;
+        }
+
+        .bin-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .bin-recycle { background: #FFE60030; color: #FFE600; }
+        .bin-general { background: #3b82f630; color: #60a5fa; }
+        .bin-wet { background: #22c55e30; color: #4ade80; }
+        .bin-hazardous { background: #ef444430; color: #f87171; }
+
+        /* Structure */
+        .structure {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 28px;
+            border: 1px solid #334155;
+            margin-bottom: 50px;
+        }
+
+        .structure h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #f8fafc;
+        }
+
+        .folder-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #94a3b8;
+        }
+
+        .folder { color: #fbbf24; font-weight: 600; }
+        .file { color: #818cf8; }
+        .comment { color: #475569; }
+
+        /* Label Explanation */
+        .label-explain {
+            background: #1e293b;
+            border-radius: 16px;
+            padding: 28px;
+            border: 2px solid #f59e0b40;
+            margin-bottom: 50px;
+        }
+
+        .label-explain h2 {
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: #fbbf24;
+        }
+
+        .label-compare {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 16px;
+        }
+
+        .label-card {
+            background: #0f172a;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+        }
+
+        .label-card h4 {
+            font-size: 15px;
+            margin-bottom: 10px;
+        }
+
+        .label-card.cls { border-color: #22c55e; }
+        .label-card.cls h4 { color: #4ade80; }
+
+        .label-card.det { border-color: #ef4444; }
+        .label-card.det h4 { color: #f87171; }
+
+        .label-card p {
+            font-size: 13px;
+            color: #94a3b8;
+            line-height: 1.6;
+        }
+
+        .label-card code {
+            background: #1e293b;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #e2e8f0;
+        }
+
+        /* Augmentation */
+        .aug-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .aug-card {
+            background: #0f172a;
+            border-radius: 10px;
+            padding: 16px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+
+        .aug-card .aug-icon { font-size: 28px; margin-bottom: 8px; }
+        .aug-card .aug-name { font-size: 13px; font-weight: 600; color: #f8fafc; }
+        .aug-card .aug-val { font-size: 11px; color: #94a3b8; margin-top: 4px; }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #f8fafc;
+            margin-bottom: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Title -->
+    <div class="title">
+        <h1>Dataset Overview</h1>
+        <p>Garbage Classification Dataset (Kaggle) - 9 Classes</p>
+    </div>
+
+    <!-- Flow Diagram -->
+    <div class="flow">
+        <div class="flow-box source">
+            <div class="icon">📥</div>
+            <div class="label">Kaggle Dataset</div>
+            <div class="sub">Garbage Classification V2</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box process">
+            <div class="icon">📂</div>
+            <div class="label">Split 80:20</div>
+            <div class="sub">Train / Validation</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box process">
+            <div class="icon">🏷️</div>
+            <div class="label">Label = Folder Name</div>
+            <div class="sub">Classification Mode</div>
+        </div>
+        <div class="flow-arrow">&#8594;</div>
+        <div class="flow-box result">
+            <div class="icon">🤖</div>
+            <div class="label">YOLOv8n-cls</div>
+            <div class="sub">Training</div>
+        </div>
+    </div>
+
+    <!-- Summary Stats -->
+    <div class="summary">
+        <div class="stat-card">
+            <div class="number">17,782</div>
+            <div class="desc">Total Images</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">9</div>
+            <div class="desc">Classes</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">640x640</div>
+            <div class="desc">Image Size (Training)</div>
+        </div>
+        <div class="stat-card">
+            <div class="number">.jpg</div>
+            <div class="desc">File Format</div>
+        </div>
+    </div>
+
+    <!-- Train/Val Split -->
+    <h2 class="section-title">Train / Validation Split</h2>
+    <div class="split-labels">
+        <span class="train-label">Train: 14,222 (80%)</span>
+        <span class="val-label">Val: 3,560 (20%)</span>
+    </div>
+    <div class="split-bar">
+        <div class="train-bar"></div>
+        <div class="val-bar"></div>
+    </div>
+
+    <div class="split-section">
+        <div class="split-box train">
+            <h3>Train Set (14,222 images)</h3>
+            <div class="split-desc">Model uses to learn patterns</div>
+            <table class="class-table">
+                <tr><th>Class</th><th>Images</th><th class="bar-cell">Distribution</th><th>Bin</th></tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#ef444430">🔋</div>battery</div></td>
+                    <td>755</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#ef4444; width:18%">755</div></td>
+                    <td><span class="bin-badge bin-hazardous">Hazardous</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#22c55e30">🥬</div>biological</div></td>
+                    <td>797</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#22c55e; width:19%">797</div></td>
+                    <td><span class="bin-badge bin-wet">Wet</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#f59e0b30">📦</div>cardboard</div></td>
+                    <td>1,460</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#f59e0b; width:34%">1,460</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#3b82f630">👕</div>clothes</div></td>
+                    <td>4,261</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#3b82f6; width:100%">4,261</div></td>
+                    <td><span class="bin-badge bin-general">General</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#06b6d430">🍾</div>glass</div></td>
+                    <td>2,448</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#06b6d4; width:57%">2,448</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#64748b30">🥫</div>metal</div></td>
+                    <td>815</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#64748b; width:19%">815</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#f8fafc20">📄</div>paper</div></td>
+                    <td>1,344</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#94a3b8; width:32%">1,344</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#818cf830">🧴</div>plastic</div></td>
+                    <td>1,587</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#818cf8; width:37%">1,587</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#78716c30">🗑️</div>trash</div></td>
+                    <td>755</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#78716c; width:18%">755</div></td>
+                    <td><span class="bin-badge bin-general">General</span></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="split-box val">
+            <h3>Validation Set (3,560 images)</h3>
+            <div class="split-desc">Model has never seen, used for testing accuracy</div>
+            <table class="class-table">
+                <tr><th>Class</th><th>Images</th><th class="bar-cell">Distribution</th><th>Bin</th></tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#ef444430">🔋</div>battery</div></td>
+                    <td>189</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#ef4444; width:18%">189</div></td>
+                    <td><span class="bin-badge bin-hazardous">Hazardous</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#22c55e30">🥬</div>biological</div></td>
+                    <td>200</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#22c55e; width:19%">200</div></td>
+                    <td><span class="bin-badge bin-wet">Wet</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#f59e0b30">📦</div>cardboard</div></td>
+                    <td>365</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#f59e0b; width:34%">365</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#3b82f630">👕</div>clothes</div></td>
+                    <td>1,066</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#3b82f6; width:100%">1,066</div></td>
+                    <td><span class="bin-badge bin-general">General</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#06b6d430">🍾</div>glass</div></td>
+                    <td>613</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#06b6d4; width:57%">613</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#64748b30">🥫</div>metal</div></td>
+                    <td>204</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#64748b; width:19%">204</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#f8fafc20">📄</div>paper</div></td>
+                    <td>336</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#94a3b8; width:32%">336</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#818cf830">🧴</div>plastic</div></td>
+                    <td>397</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#818cf8; width:37%">397</div></td>
+                    <td><span class="bin-badge bin-recycle">Recycle</span></td>
+                </tr>
+                <tr>
+                    <td><div class="class-name"><div class="class-icon" style="background:#78716c30">🗑️</div>trash</div></td>
+                    <td>190</td>
+                    <td class="bar-cell"><div class="count-bar" style="background:#78716c; width:18%">190</div></td>
+                    <td><span class="bin-badge bin-general">General</span></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Folder Structure -->
+    <div class="structure">
+        <h2>Folder Structure (Label = Folder Name)</h2>
+        <div class="folder-tree">
+            <span class="folder">garbage_dataset_cls/</span><br>
+            ├── <span class="folder">train/</span> <span class="comment">(14,222 images - for learning)</span><br>
+            │   ├── <span class="folder">battery/</span> <span class="comment">← Label: "battery"</span><br>
+            │   │   ├── <span class="file">battery_001.jpg</span><br>
+            │   │   ├── <span class="file">battery_002.jpg</span><br>
+            │   │   └── <span class="file">... (755 images)</span><br>
+            │   ├── <span class="folder">biological/</span> <span class="comment">← Label: "biological"</span><br>
+            │   │   └── <span class="file">... (797 images)</span><br>
+            │   ├── <span class="folder">cardboard/</span> <span class="comment">← Label: "cardboard"</span><br>
+            │   │   └── <span class="file">... (1,460 images)</span><br>
+            │   ├── <span class="folder">clothes/</span> <span class="comment">← Label: "clothes"</span><br>
+            │   │   └── <span class="file">... (4,261 images)</span><br>
+            │   ├── <span class="folder">glass/</span> <span class="comment">← Label: "glass"</span><br>
+            │   │   └── <span class="file">... (2,448 images)</span><br>
+            │   ├── <span class="folder">metal/</span> <span class="comment">← Label: "metal"</span><br>
+            │   │   └── <span class="file">... (815 images)</span><br>
+            │   ├── <span class="folder">paper/</span> <span class="comment">← Label: "paper"</span><br>
+            │   │   └── <span class="file">... (1,344 images)</span><br>
+            │   ├── <span class="folder">plastic/</span> <span class="comment">← Label: "plastic"</span><br>
+            │   │   └── <span class="file">... (1,587 images)</span><br>
+            │   └── <span class="folder">trash/</span> <span class="comment">← Label: "trash"</span><br>
+            │       └── <span class="file">... (755 images)</span><br>
+            │<br>
+            └── <span class="folder">val/</span> <span class="comment">(3,560 images - for testing)</span><br>
+                ├── <span class="folder">battery/</span> <span class="comment">(189 images)</span><br>
+                ├── <span class="folder">biological/</span> <span class="comment">(200 images)</span><br>
+                ├── <span class="folder">...</span><br>
+                └── <span class="folder">trash/</span> <span class="comment">(190 images)</span>
+        </div>
+    </div>
+
+    <!-- Label Explanation -->
+    <div class="label-explain">
+        <h2>Label (Classification vs Detection)</h2>
+        <p style="color: #94a3b8; font-size: 14px;">Classification does not require manual bounding box annotation</p>
+        <div class="label-compare">
+            <div class="label-card cls">
+                <h4>Classification (Used) ✅</h4>
+                <p>
+                    Label = <strong>folder name</strong><br><br>
+                    Put image in <code>plastic/</code> folder<br>
+                    = Model learns "this is plastic"<br><br>
+                    No bounding box needed<br>
+                    No annotation tool needed<br><br>
+                    <strong>Easy &amp; Fast</strong>
+                </p>
+            </div>
+            <div class="label-card det">
+                <h4>Detection (Not used) ❌</h4>
+                <p>
+                    Label = <strong>.txt file with coordinates</strong><br><br>
+                    <code>0 0.5 0.5 0.9 0.9</code><br>
+                    = class x y width height<br><br>
+                    Must draw bounding box per image<br>
+                    Requires annotation tool (LabelImg)<br><br>
+                    <strong>Time-consuming</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Data Augmentation -->
+    <div class="structure">
+        <h2>Data Augmentation (Auto by YOLOv8)</h2>
+        <p style="color: #94a3b8; font-size: 14px; margin-bottom: 16px;">YOLOv8 automatically applies these transformations during training to increase data variety</p>
+        <div class="aug-grid">
+            <div class="aug-card">
+                <div class="aug-icon">🔄</div>
+                <div class="aug-name">Rotation</div>
+                <div class="aug-val">25 degrees</div>
+            </div>
+            <div class="aug-card">
+                <div class="aug-icon">↔️</div>
+                <div class="aug-name">Flip LR</div>
+                <div class="aug-val">50%</div>
+            </div>
+            <div class="aug-card">
+                <div class="aug-icon">🔍</div>
+                <div class="aug-name">Scale</div>
+                <div class="aug-val">0.7x</div>
+            </div>
+            <div class="aug-card">
+                <div class="aug-icon">↗️</div>
+                <div class="aug-name">Translate</div>
+                <div class="aug-val">20%</div>
+            </div>
+            <div class="aug-card">
+                <div class="aug-icon">🌈</div>
+                <div class="aug-name">HSV Hue</div>
+                <div class="aug-val">0.02</div>
+            </div>
+            <div class="aug-card">
+                <div class="aug-icon">💧</div>
+                <div class="aug-name">HSV Saturation</div>
+                <div class="aug-val">0.8</div>
+            </div>
+            <div class="aug-card">
+                <div class="aug-icon">☀️</div>
+                <div class="aug-name">HSV Value</div>
+                <div class="aug-val">0.5</div>
+            </div>
+            <div class="aug-card">
+                <div class="aug-icon">📐</div>
+                <div class="aug-name">Resize</div>
+                <div class="aug-val">640x640 px</div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Data Flow Diagram - Garbage Classification System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+
+  .page { width: 1100px; }
+
+  .title-area { text-align: center; margin-bottom: 36px; }
+  .title-area h1 { font-size: 44px; font-weight: 900; color: #f8fafc; }
+  .title-area p { color: #64748b; font-size: 15px; margin-top: 4px; }
+
+  /* Arrow */
+  .arrow-connector {
+    display: flex; align-items: center; justify-content: center;
+    padding: 10px 0; gap: 10px;
+  }
+  .arrow-connector .line {
+    height: 2px; width: 60px;
+    background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+  }
+  .arrow-connector .arrow-text {
+    color: #3b82f6; font-size: 11px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* Zone */
+  .zone {
+    border: 2px solid; border-radius: 18px; padding: 24px;
+    position: relative; background: rgba(255,255,255,0.02);
+  }
+  .zone-tag {
+    position: absolute; top: -13px; left: 24px;
+    padding: 3px 16px; border-radius: 6px;
+    font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+  }
+
+  /* Card */
+  .card {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 18px; text-align: center;
+  }
+  .card-emoji { font-size: 32px; display: block; margin-bottom: 8px; }
+  .card h3 { color: #f1f5f9; font-size: 14px; font-weight: 700; }
+  .card .sub { color: #94a3b8; font-size: 11px; margin-top: 2px; }
+  .card .tech {
+    display: inline-block; margin-top: 6px;
+    background: rgba(255,255,255,0.08); color: #cbd5e1;
+    font-size: 10px; padding: 2px 10px; border-radius: 20px;
+  }
+
+  /* Helpers */
+  .flex-row { display: flex; gap: 16px; }
+  .flex-row > * { flex: 1; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+  .grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+
+  /* Zone Colors */
+  .zone-user   { border-color: #3b82f6; }
+  .zone-user .zone-tag { background: #3b82f6; color: #fff; }
+  .zone-server { border-color: #06b6d4; }
+  .zone-server .zone-tag { background: #06b6d4; color: #0f172a; }
+  .zone-ml     { border-color: #8b5cf6; }
+  .zone-ml .zone-tag { background: #8b5cf6; color: #fff; }
+  .zone-data   { border-color: #f59e0b; }
+  .zone-data .zone-tag { background: #f59e0b; color: #0f172a; }
+  .zone-devops { border-color: #10b981; }
+  .zone-devops .zone-tag { background: #10b981; color: #0f172a; }
+
+  /* Card Accent */
+  .card-accent-blue   { border-left: 4px solid #3b82f6; }
+  .card-accent-cyan   { border-left: 4px solid #06b6d4; }
+  .card-accent-purple { border-left: 4px solid #8b5cf6; }
+  .card-accent-amber  { border-left: 4px solid #f59e0b; }
+  .card-accent-green  { border-left: 4px solid #10b981; }
+
+  /* Inner zone */
+  .inner-zone {
+    border: 1.5px dashed rgba(255,255,255,0.15);
+    border-radius: 12px; padding: 16px; position: relative;
+  }
+  .inner-zone-tag {
+    position: absolute; top: -10px; left: 16px; background: #1e293b;
+    padding: 0 10px; color: #94a3b8;
+    font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <!-- TITLE -->
+  <div class="title-area">
+    <h1>Data Flow</h1>
+    <p>Garbage Classification System with YOLOv8</p>
+  </div>
+
+  <!-- ===== STEP 1: USER INPUT ===== -->
+  <div class="zone zone-user">
+    <div class="zone-tag">Step 1 — User Input</div>
+    <div class="grid-3" style="margin-top: 6px;">
+      <div class="card card-accent-blue">
+        <span class="card-emoji">📱</span>
+        <h3>Open Mobile App</h3>
+        <div class="sub">React Native · Expo SDK 54</div>
+        <div class="tech">Cross-platform</div>
+      </div>
+      <div class="card card-accent-blue">
+        <span class="card-emoji">📸</span>
+        <h3>Capture Image</h3>
+        <div class="sub">Camera or Gallery</div>
+        <div class="tech">expo-image-picker</div>
+      </div>
+      <div class="card card-accent-blue">
+        <span class="card-emoji">🔄</span>
+        <h3>Resize & Compress</h3>
+        <div class="sub">640px · JPEG 70%</div>
+        <div class="tech">~5MB → ~80KB</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="arrow-connector">
+    <div class="line"></div>
+    <div class="arrow-text">⬇ &nbsp; HTTP POST /predict · multipart/form-data</div>
+    <div class="line"></div>
+  </div>
+
+  <!-- ===== STEP 2: API SERVER ===== -->
+  <div class="zone zone-server">
+    <div class="zone-tag">Step 2 — API Processing</div>
+    <div style="margin-top: 6px;">
+
+      <!-- Receive & Decode -->
+      <div class="inner-zone" style="margin-bottom: 16px;">
+        <div class="inner-zone-tag">Receive & Decode</div>
+        <div class="grid-3" style="margin-top: 6px;">
+          <div class="card card-accent-cyan">
+            <span class="card-emoji">⚡</span>
+            <h3>FastAPI + Uvicorn</h3>
+            <div class="sub">Receive image bytes</div>
+            <div class="tech">async · ASGI</div>
+          </div>
+          <div class="card card-accent-cyan">
+            <span class="card-emoji">🔍</span>
+            <h3>Validate File</h3>
+            <div class="sub">Check content_type = image/*</div>
+            <div class="tech">400 if invalid</div>
+          </div>
+          <div class="card card-accent-cyan">
+            <span class="card-emoji">📐</span>
+            <h3>Decode Image</h3>
+            <div class="sub">bytes → numpy → cv2.imdecode</div>
+            <div class="tech">BGR array</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ML + DB -->
+      <div class="flex-row">
+
+        <!-- ML Inference -->
+        <div class="zone zone-ml" style="margin-bottom:0;">
+          <div class="zone-tag">Step 3 — AI Classify</div>
+          <div style="margin-top: 6px;">
+            <div class="card card-accent-purple" style="margin-bottom:10px;">
+              <span class="card-emoji">🧠</span>
+              <h3>YOLOv8n-cls</h3>
+              <div class="sub">model.predict(image)</div>
+              <div class="tech">1.45M params · ~1ms</div>
+            </div>
+            <div class="card card-accent-purple" style="margin-bottom:10px;">
+              <span class="card-emoji">📊</span>
+              <h3>Normalize → Backbone → Head</h3>
+              <div class="sub">0-255 → 0-1 → Feature → Softmax</div>
+              <div class="tech">Conv · C2f · SPPF</div>
+            </div>
+            <div class="card card-accent-purple" style="margin-bottom:10px;">
+              <span class="card-emoji">🎯</span>
+              <h3>Get Top-1 Result</h3>
+              <div class="sub">probs.top1 → class name + confidence</div>
+              <div class="tech">10 classes</div>
+            </div>
+            <div class="card card-accent-purple">
+              <span class="card-emoji">🗺️</span>
+              <h3>Map Class → Bin</h3>
+              <div class="sub" style="text-align:left; padding-left:12px; line-height:1.6;">
+                plastic, glass, metal → ♻️ Recycle<br>
+                biological → 🥬 Wet Waste<br>
+                battery → ☢️ Hazardous<br>
+                clothes, shoes, trash → 🗑️ General
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- DB + Response -->
+        <div style="flex:1; display:flex; flex-direction:column; gap:14px;">
+          <div class="zone zone-data" style="margin-bottom:0; flex:1;">
+            <div class="zone-tag">Step 4 — Save Log</div>
+            <div style="margin-top: 6px;">
+              <div class="card card-accent-amber" style="margin-bottom:10px;">
+                <span class="card-emoji">🐘</span>
+                <h3>PostgreSQL</h3>
+                <div class="sub">Save prediction log</div>
+                <div class="tech">class · confidence · timestamp</div>
+              </div>
+              <div class="card card-accent-amber">
+                <span class="card-emoji">📁</span>
+                <h3>Image Storage</h3>
+                <div class="sub">Save photo for retraining</div>
+                <div class="tech">future dataset</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="zone zone-devops" style="margin-bottom:0; flex:1;">
+            <div class="zone-tag">Step 5 — Build Response</div>
+            <div style="margin-top: 6px;">
+              <div class="card card-accent-green" style="margin-bottom:10px;">
+                <span class="card-emoji">📦</span>
+                <h3>JSON Response</h3>
+                <div class="sub" style="text-align:left; padding:4px 8px; font-family:monospace; font-size:10px; color:#6ee7b7; line-height:1.5;">
+                  {<br>
+                  &nbsp; "class": "plastic",<br>
+                  &nbsp; "confidence": 0.9639,<br>
+                  &nbsp; "bin": "recycle",<br>
+                  &nbsp; "bin_label": "Recycle",<br>
+                  &nbsp; "bin_color": "#FFE600"<br>
+                  }
+                </div>
+              </div>
+              <div class="card card-accent-green">
+                <span class="card-emoji">✅</span>
+                <h3>HTTP 200 OK</h3>
+                <div class="sub">Return application/json</div>
+                <div class="tech">Content-Type: JSON</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ARROW -->
+  <div class="arrow-connector">
+    <div class="line"></div>
+    <div class="arrow-text">⬆ &nbsp; JSON Response · class · confidence · bin</div>
+    <div class="line"></div>
+  </div>
+
+  <!-- ===== STEP 6: DISPLAY RESULT ===== -->
+  <div class="zone zone-user">
+    <div class="zone-tag">Step 6 — Display Result</div>
+    <div class="grid-3" style="margin-top: 6px;">
+      <div class="card card-accent-blue">
+        <span class="card-emoji">🏷️</span>
+        <h3>Classification Result</h3>
+        <div class="sub">Show class name</div>
+        <div class="tech">e.g. "plastic"</div>
+      </div>
+      <div class="card card-accent-blue">
+        <span class="card-emoji">📊</span>
+        <h3>Confidence Bar</h3>
+        <div class="sub">Visual progress 0-100%</div>
+        <div class="tech">e.g. "96.39%"</div>
+      </div>
+      <div class="card card-accent-blue">
+        <span class="card-emoji">🗑️</span>
+        <h3>Bin Recommendation</h3>
+        <div class="sub">Color-coded bin guide</div>
+        <div class="tech">♻️ Recycle · 🗑️ General · 🥬 Wet · ☢️ Hazardous</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

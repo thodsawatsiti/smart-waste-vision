@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+.venv/
+venv/
+env/
+
+# Datasets (ใหญ่เกินกว่าจะเก็บใน git)
+garbage_dataset*/
+garbage-classification*/
+exp_ab*/
+new_data/
+hard_val/
+external_models/
+
+# ผลการเทรน / โมเดล
+runs/
+results/
+*.pth
+*.onnx
+# เก็บเฉพาะโมเดลโปรดักชัน
+*.pt
+!models/best.pt
+
+# รูปที่ผู้ใช้อัปโหลด (มีข้อมูลส่วนบุคคล ห้ามขึ้น git)
+uploads/
+
+# IDE / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Logs / temp
+*.log
+*.tmp
+*.cache
+*.csv
+
+# Node
+node_modules/

@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#0a0e27">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Smart Waste Vision">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <title>Smart Waste Vision</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+    :root {
+      --bg-primary: #0a0e27;
+      --bg-secondary: #131736;
+      --bg-card: rgba(255, 255, 255, 0.04);
+      --bg-card-hover: rgba(255, 255, 255, 0.08);
+      --border-subtle: rgba(255, 255, 255, 0.08);
+      --border-strong: rgba(255, 255, 255, 0.16);
+      --text-primary: #ffffff;
+      --text-secondary: #a0a3bd;
+      --text-tertiary: #6b6f8d;
+      --accent: #6366f1;
+      --success: #10b981;
+      --error: #ef4444;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: var(--bg-primary);
+      background-image:
+        radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.15) 0px, transparent 50%),
+        radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.10) 0px, transparent 50%);
+      background-attachment: fixed;
+      color: var(--text-primary);
+      min-height: 100vh; min-height: 100dvh;
+      letter-spacing: -0.01em;
+      overflow-x: hidden;
+    }
+
+    .app {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 28px 20px calc(env(safe-area-inset-bottom, 0px) + 32px);
+      padding-top: calc(env(safe-area-inset-top, 0px) + 28px);
+    }
+
+    /* Header */
+    .header { text-align: center; margin-bottom: 24px; animation: fadeInDown 0.6s ease-out; }
+    .brand { display: inline-flex; align-items: center; gap: 11px; margin-bottom: 8px; }
+    .brand-logo {
+      width: 40px; height: 40px; border-radius: 12px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      display: flex; align-items: center; justify-content: center; font-size: 22px;
+      box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
+    }
+    .brand h1 {
+      font-size: 23px; font-weight: 700; letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #fff 0%, #a0a3bd 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .tagline { color: var(--text-tertiary); font-size: 13px; font-weight: 500; }
+
+    /* Preview */
+    .preview {
+      width: 100%; aspect-ratio: 4/5; border-radius: 22px; overflow: hidden;
+      background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle); margin-bottom: 16px;
+      display: flex; align-items: center; justify-content: center; position: relative;
+      transition: border-color 0.3s ease;
+    }
+    .preview.has-image { border-color: var(--border-strong); }
+    .preview img { width: 100%; height: 100%; object-fit: cover; }
+    .placeholder { text-align: center; padding: 24px; }
+    .placeholder-icon {
+      width: 76px; height: 76px; margin: 0 auto 18px; border-radius: 22px;
+      background: var(--bg-card); border: 1px solid var(--border-subtle);
+      display: flex; align-items: center; justify-content: center; font-size: 34px;
+    }
+    .placeholder-text { color: var(--text-secondary); font-size: 15px; font-weight: 600; }
+    .placeholder-hint { color: var(--text-tertiary); font-size: 12.5px; margin-top: 6px; }
+
+    /* Buttons */
+    .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; margin-bottom: 18px; }
+    .btn {
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      padding: 16px; border-radius: 15px; border: 1px solid var(--border-subtle);
+      font-size: 14.5px; font-weight: 600; color: var(--text-primary);
+      cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      font-family: inherit; letter-spacing: -0.01em;
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-camera {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none;
+      box-shadow: 0 4px 16px rgba(16, 185, 129, 0.25);
+    }
+    .btn-gallery { background: var(--bg-card); }
+    .btn-gallery:active { background: var(--bg-card-hover); }
+    .btn-icon { font-size: 18px; }
+    #fileInput, #cameraInput { display: none; }
+
+    /* Loading */
+    .loading {
+      background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 16px;
+      padding: 28px; text-align: center; display: none; animation: fadeIn 0.3s ease-out;
+    }
+    .spinner {
+      width: 38px; height: 38px; border: 3px solid var(--border-subtle);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.7s cubic-bezier(0.4, 0, 0.2, 1) infinite; margin: 0 auto 12px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { color: var(--text-secondary); font-size: 13px; font-weight: 500; }
+
+    /* Error */
+    .error {
+      background: rgba(239, 68, 68, 0.08); border: 1px solid rgba(239, 68, 68, 0.2);
+      border-radius: 14px; padding: 14px 16px; display: none; align-items: center; gap: 10px;
+      margin-bottom: 16px; animation: shake 0.4s ease-out;
+    }
+    .error-icon { font-size: 18px; flex-shrink: 0; }
+    .error-text { color: #fca5a5; font-size: 13px; font-weight: 500; }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-4px);} 75%{transform:translateX(4px);} }
+
+    /* Result */
+    .result {
+      background: var(--bg-card); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border-subtle); border-radius: 22px; overflow: hidden;
+      display: none; animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .result-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 15px 20px; position: relative; overflow: hidden;
+    }
+    .result-header::before { content: ''; position: absolute; inset: 0; background: currentColor; opacity: 0.12; }
+    .result-header-left { display: flex; align-items: center; gap: 10px; position: relative; z-index: 1; }
+    .result-bin-icon { display: inline-flex; align-items: center; }
+    .result-bin-icon svg { width: 27px; height: 27px; display: block; }
+    .result-bin-label { font-size: 15px; font-weight: 700; letter-spacing: 0.02em; text-transform: uppercase; }
+    .result-badge {
+      position: relative; z-index: 1; font-size: 11px; font-weight: 600; padding: 4px 9px;
+      border-radius: 7px; background: rgba(255,255,255,0.15); letter-spacing: 0.04em; text-transform: uppercase;
+    }
+    .result-body { padding: 26px 20px; }
+    .result-class {
+      font-size: 34px; font-weight: 800; text-align: center;
+      margin-bottom: 4px; letter-spacing: -0.03em;
+      background: linear-gradient(135deg, #fff 0%, #a0a3bd 100%);
+      -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+    }
+    .result-subtitle { font-size: 13px; color: var(--text-tertiary); text-align: center; margin-bottom: 24px; font-weight: 500; }
+
+    /* Feedback */
+    .feedback-section { border-top: 1px solid var(--border-subtle); padding-top: 18px; }
+    .feedback-question { color: var(--text-secondary); font-size: 13px; font-weight: 500; text-align: center; margin-bottom: 11px; }
+    .feedback-row { display: grid; grid-template-columns: 1fr 1fr; gap: 11px; }
+    .feedback-btn {
+      display: flex; align-items: center; justify-content: center; gap: 7px; padding: 13px;
+      border-radius: 13px; border: 1px solid var(--border-subtle); color: var(--text-primary);
+      font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      background: var(--bg-card); font-family: inherit;
+    }
+    .feedback-btn:active { transform: scale(0.97); }
+    .feedback-correct:active { background: rgba(16,185,129,0.15); border-color: var(--success); }
+    .feedback-wrong:active { background: rgba(239,68,68,0.15); border-color: var(--error); }
+    .feedback-done { display: none; text-align: center; padding: 18px; border-top: 1px solid var(--border-subtle); color: var(--success); font-size: 14px; font-weight: 600; animation: fadeIn 0.4s; }
+
+    /* Footer hint */
+    .foot { text-align: center; margin-top: 22px; color: var(--text-tertiary); font-size: 12.5px; font-weight: 500; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+      display: none; align-items: flex-end; justify-content: center; z-index: 100; animation: fadeIn 0.2s;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-content {
+      background: var(--bg-secondary); border-radius: 24px 24px 0 0; padding: 24px 20px;
+      width: 100%; max-width: 480px; max-height: 75vh; overflow-y: auto;
+      border-top: 1px solid var(--border-subtle); animation: slideUp 0.3s cubic-bezier(0.4,0,0.2,1);
+    }
+    .modal-handle { width: 40px; height: 4px; background: var(--border-strong); border-radius: 2px; margin: 0 auto 20px; }
+    .modal-title { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 4px; }
+    .modal-sub { color: var(--text-tertiary); font-size: 13px; text-align: center; margin-bottom: 20px; }
+    .class-item {
+      display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--bg-card);
+      border-radius: 14px; margin-bottom: 8px; cursor: pointer; border: 1px solid var(--border-subtle);
+      width: 100%; color: var(--text-primary); font-size: 15px; font-weight: 600; transition: all 0.2s; font-family: inherit;
+    }
+    .class-item:active { background: var(--bg-card-hover); transform: scale(0.98); }
+    .class-icon { font-size: 22px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: var(--bg-card); border-radius: 10px; }
+    .modal-cancel {
+      margin-top: 12px; padding: 14px; text-align: center; background: var(--bg-card);
+      border: 1px solid var(--border-subtle); border-radius: 14px; color: var(--text-secondary);
+      font-size: 14px; font-weight: 600; width: 100%; cursor: pointer; font-family: inherit;
+    }
+    .modal-cancel:active { background: var(--bg-card-hover); }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div class="brand">
+        <div class="brand-logo">♻️</div>
+        <h1>Smart Waste Vision</h1>
+      </div>
+      
+    </div>
+
+    <div class="preview" id="preview">
+      <div class="placeholder" id="placeholder">
+        <div class="placeholder-icon">📷</div>
+        <div class="placeholder-text">ถ่ายรูปขยะของคุณ</div>
+        <div class="placeholder-hint">แล้ว AI จะบอกว่าควรทิ้งถังไหน</div>
+      </div>
+      <img id="previewImg" style="display:none">
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-camera" onclick="openCamera()"><span class="btn-icon">📸</span> ถ่ายรูป</button>
+      <button class="btn btn-gallery" onclick="openGallery()"><span class="btn-icon">🖼️</span> เลือกรูป</button>
+    </div>
+    <input type="file" id="cameraInput" accept="image/*" capture="environment">
+    <input type="file" id="fileInput" accept="image/*">
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div class="loading-text">กำลังวิเคราะห์...</div>
+    </div>
+
+    <div class="error" id="error">
+      <span class="error-icon">⚠️</span>
+      <span class="error-text" id="errorText"></span>
+    </div>
+
+    <div class="result" id="result">
+      <div class="result-header" id="resultHeader">
+        <div class="result-header-left">
+          <span class="result-bin-icon" id="resultBinIcon"></span>
+          <span class="result-bin-label" id="resultBinLabel"></span>
+        </div>
+        <span class="result-badge">Detected</span>
+      </div>
+      <div class="result-body">
+        <div class="result-class" id="resultClass"></div>
+        <div class="result-subtitle">ประเภทขยะที่ตรวจพบ</div>
+
+        <div class="feedback-section" id="feedbackSection">
+          <div class="feedback-question">ผลลัพธ์ถูกต้องไหม?</div>
+          <div class="feedback-row">
+            <button class="feedback-btn feedback-correct" onclick="sendFeedback('correct')">✓ ถูกต้อง</button>
+            <button class="feedback-btn feedback-wrong" onclick="showClassPicker()">✗ ไม่ถูก</button>
+          </div>
+        </div>
+        <div class="feedback-done" id="feedbackDone"></div>
+      </div>
+    </div>
+
+    
+  </div>
+
+  <div class="modal-overlay" id="modal">
+    <div class="modal-content">
+      <div class="modal-handle"></div>
+      <div class="modal-title">เลือกประเภทที่ถูกต้อง</div>
+      <div class="modal-sub">ช่วยเราพัฒนาให้แม่นขึ้น โดยเลือกประเภทที่ถูก</div>
+      <div id="classList"></div>
+      <button class="modal-cancel" onclick="closeModal()">ยกเลิก</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "";  // same-origin — ใช้ได้ทั้ง localhost และผ่าน tunnel (มือถือ)
+
+    const BIN_CONFIG = {
+      general:   { label: "ถังสีน้ำเงิน", waste: "ขยะทั่วไป",   color: "#3b82f6" },
+      recycle:   { label: "ถังสีเหลือง", waste: "ขยะรีไซเคิล", color: "#eab308" },
+      wet:       { label: "ถังสีเขียว",  waste: "ขยะเปียก",    color: "#10b981" },
+      hazardous: { label: "ถังสีแดง",    waste: "ขยะอันตราย",  color: "#ef4444" },
+    };
+
+    // ไอคอนถังขยะแบบ SVG — ระบายสีตามถังที่แนะนำ (ต่างจาก emoji ที่เป็นสีเทาเหมือนกันหมด)
+    function binIconSVG(color) {
+      return `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M9 3.4h6a1 1 0 0 1 1 1V6H8V4.4a1 1 0 0 1 1-1z" fill="${color}"/>
+        <rect x="3.4" y="6" width="17.2" height="2.6" rx="1.3" fill="${color}"/>
+        <path d="M5.6 9.9h12.8l-1 11.05a1.6 1.6 0 0 1-1.6 1.45H8.2a1.6 1.6 0 0 1-1.6-1.45L5.6 9.9z" fill="${color}" opacity="0.85"/>
+        <rect x="9" y="12.3" width="1.5" height="6.9" rx="0.75" fill="#fff" opacity="0.7"/>
+        <rect x="13.5" y="12.3" width="1.5" height="6.9" rx="0.75" fill="#fff" opacity="0.7"/>
+      </svg>`;
+    }
+    const ALL_CLASSES = [
+      { name: "plastic",    label: "Plastic",    icon: "🧴" },
+      { name: "glass",      label: "Glass",      icon: "🍶" },
+      { name: "metal",      label: "Metal",      icon: "🥫" },
+      { name: "paper",      label: "Paper",      icon: "📄" },
+      { name: "cardboard",  label: "Cardboard",  icon: "📦" },
+      { name: "biological", label: "Biological", icon: "🍌" },
+      { name: "battery",    label: "Battery",    icon: "🔋" },
+      { name: "clothes",    label: "Clothes",    icon: "👕" },
+      { name: "shoes",      label: "Shoes",      icon: "👟" },
+      { name: "trash",      label: "Trash",      icon: "🗑️" },
+    ];
+
+    let currentResult = null;
+
+    function openCamera() { document.getElementById("cameraInput").click(); }
+    function openGallery() { document.getElementById("fileInput").click(); }
+    document.getElementById("cameraInput").addEventListener("change", handleFile);
+    document.getElementById("fileInput").addEventListener("change", handleFile);
+
+    function handleFile(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const url = URL.createObjectURL(file);
+      const img = document.getElementById("previewImg");
+      img.src = url; img.style.display = "block";
+      document.getElementById("placeholder").style.display = "none";
+      document.getElementById("preview").classList.add("has-image");
+      document.getElementById("result").style.display = "none";
+      document.getElementById("error").style.display = "none";
+      document.getElementById("feedbackSection").style.display = "block";
+      document.getElementById("feedbackDone").style.display = "none";
+      classify(file);
+      e.target.value = "";
+    }
+
+    // ย่อรูปฝั่ง client ก่อนอัปโหลด — กันรูปถ่ายมือถือใหญ่ (3-10MB) อัปช้าจน timeout
+    // ย่อด้านยาวสุดเหลือ 1280px (โมเดล resize เป็น 640 อยู่แล้ว ไม่เสียความแม่น)
+    async function resizeImage(file, maxSize = 1280, quality = 0.9) {
+      if (!file.type || !file.type.startsWith("image/")) return file;
+      try {
+        const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+        const longest = Math.max(bitmap.width, bitmap.height);
+        const scale = Math.min(1, maxSize / longest);
+        if (scale === 1 && file.size < 1.5 * 1024 * 1024) { bitmap.close && bitmap.close(); return file; }
+        const w = Math.round(bitmap.width * scale), h = Math.round(bitmap.height * scale);
+        const canvas = document.createElement("canvas");
+        canvas.width = w; canvas.height = h;
+        canvas.getContext("2d").drawImage(bitmap, 0, 0, w, h);
+        bitmap.close && bitmap.close();
+        const blob = await new Promise(r => canvas.toBlob(r, "image/jpeg", quality));
+        return blob || file;
+      } catch (e) {
+        return file;  // ย่อไม่ได้ (browser เก่า) ก็ส่งไฟล์เดิม
+      }
+    }
+
+    async function classify(file) {
+      const loading = document.getElementById("loading");
+      loading.style.display = "block";
+      document.getElementById("error").style.display = "none";
+      document.getElementById("result").style.display = "none";
+      try {
+        const uploadFile = await resizeImage(file);
+        const formData = new FormData();
+        formData.append("file", uploadFile, "upload.jpg");
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 60000);
+        const response = await fetch(`${API_URL}/predict`, { method: "POST", body: formData, signal: controller.signal });
+        clearTimeout(timeoutId);
+        if (!response.ok) throw new Error(`Server error: ${response.status}`);
+        const data = await response.json();
+        currentResult = data;
+        if (data.class && data.bin) showResult(data);
+        else showError("ไม่พบขยะในรูป ลองถ่ายใหม่อีกครั้ง");
+      } catch (err) {
+        if (err.name === "AbortError") showError("หมดเวลา — ตรวจสอบการเชื่อมต่อ");
+        else showError(err.message || "เชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
+      } finally {
+        loading.style.display = "none";
+      }
+    }
+
+    function showResult(data) {
+      const bin = BIN_CONFIG[data.bin];
+      const header = document.getElementById("resultHeader");
+      header.style.color = bin.color;
+      document.getElementById("resultBinIcon").innerHTML = binIconSVG(bin.color);
+      const binLabel = document.getElementById("resultBinLabel");
+      binLabel.textContent = bin.label; binLabel.style.color = bin.color;
+      document.getElementById("resultClass").textContent = bin.waste;
+      document.getElementById("result").style.display = "block";
+    }
+
+    function showError(msg) {
+      document.getElementById("errorText").textContent = msg;
+      document.getElementById("error").style.display = "flex";
+    }
+
+    async function sendFeedback(isCorrect, correctClass = null) {
+      document.getElementById("feedbackSection").style.display = "none";
+      const done = document.getElementById("feedbackDone");
+      done.textContent = isCorrect === "correct" ? "✓ ขอบคุณที่ยืนยัน!" : "✓ บันทึกแล้ว — ขอบคุณ!";
+      done.style.display = "block";
+      if (currentResult?.prediction_id) {
+        try {
+          await fetch(`${API_URL}/feedback`, {
+            method: "POST", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ prediction_id: currentResult.prediction_id, is_correct: isCorrect, correct_class: correctClass }),
+          });
+        } catch (err) { /* เงียบไว้ */ }
+      }
+    }
+
+    function showClassPicker() {
+      document.getElementById("classList").innerHTML = ALL_CLASSES
+        .filter(c => c.name !== currentResult?.class)
+        .map(c => `<button class="class-item" onclick="selectClass('${c.name}')"><span class="class-icon">${c.icon}</span> ${c.label}</button>`).join("");
+      document.getElementById("modal").classList.add("active");
+    }
+    function selectClass(name) { closeModal(); sendFeedback("incorrect", name); }
+    function closeModal() { document.getElementById("modal").classList.remove("active"); }
+
+    if ("serviceWorker" in navigator) { navigator.serviceWorker.register("sw.js"); }
+  </script>
+</body>
+</html>

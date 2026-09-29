@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Context Diagram - Garbage Classification System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: #0f172a;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 40px 20px;
+    color: #f8fafc;
+  }
+
+  .page { width: 900px; }
+
+  .title-area { text-align: center; margin-bottom: 36px; }
+  .title-area h1 { font-size: 36px; font-weight: 900; }
+  .title-area .sub { color: #64748b; font-size: 13px; margin-top: 4px; }
+  .title-area .badge {
+    display: inline-block; margin-top: 8px;
+    background: rgba(99,102,241,0.15); color: #818cf8;
+    font-size: 11px; font-weight: 700; padding: 4px 14px;
+    border-radius: 20px; letter-spacing: 1px;
+  }
+
+  /* ========== LAYOUT ========== */
+  .diagram-grid {
+    display: grid;
+    grid-template-columns: 200px 1fr 200px;
+    grid-template-rows: auto auto auto auto auto;
+    gap: 0;
+    align-items: center;
+    justify-items: center;
+  }
+
+  /* Entity Box */
+  .entity {
+    border: 2px solid;
+    border-radius: 12px;
+    padding: 16px 20px;
+    text-align: center;
+    background: rgba(255,255,255,0.03);
+    width: 180px;
+  }
+  .entity-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
+  .entity-name { font-size: 14px; font-weight: 800; }
+  .entity-sub { font-size: 10px; color: #94a3b8; margin-top: 2px; }
+
+  .entity-blue { border-color: #3b82f6; }
+  .entity-green { border-color: #10b981; }
+  .entity-orange { border-color: #f97316; }
+  .entity-amber { border-color: #f59e0b; }
+  .entity-cyan { border-color: #06b6d4; }
+
+  /* System Circle */
+  .system {
+    width: 240px; height: 240px;
+    border-radius: 50%;
+    border: 3px solid #6366f1;
+    background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+  }
+  .system-emoji { font-size: 40px; margin-bottom: 6px; }
+  .system-name { font-size: 14px; font-weight: 900; line-height: 1.3; }
+  .system-tech { font-size: 10px; color: #94a3b8; margin-top: 6px; }
+  .system-id { font-size: 9px; color: #6366f1; font-weight: 700; letter-spacing: 2px; margin-top: 6px; }
+
+  /* Arrow Row */
+  .arrow-row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 0;
+  }
+  .arrow-h {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 0 8px;
+  }
+
+  .arrow-line-v {
+    width: 2px; height: 28px;
+    background: linear-gradient(180deg, #3b82f6, #6366f1);
+  }
+  .arrow-line-h {
+    height: 2px; width: 40px;
+  }
+  .arrow-line-h.blue { background: linear-gradient(90deg, #3b82f6, #6366f1); }
+  .arrow-line-h.green { background: linear-gradient(90deg, #6366f1, #10b981); }
+  .arrow-line-h.orange { background: linear-gradient(90deg, #6366f1, #f97316); }
+  .arrow-line-h.amber { background: linear-gradient(90deg, #f59e0b, #6366f1); }
+  .arrow-line-h.cyan { background: linear-gradient(90deg, #6366f1, #06b6d4); }
+
+  .flow-tag {
+    font-size: 9px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 6px;
+    white-space: nowrap;
+    text-align: center;
+    line-height: 1.4;
+  }
+  .flow-in {
+    background: rgba(96,165,250,0.12);
+    color: #93c5fd;
+    border: 1px solid rgba(96,165,250,0.2);
+  }
+  .flow-out {
+    background: rgba(74,222,128,0.12);
+    color: #86efac;
+    border: 1px solid rgba(74,222,128,0.2);
+  }
+
+  .arrow-icon { font-size: 16px; }
+  .arrow-icon.blue { color: #3b82f6; }
+  .arrow-icon.green { color: #10b981; }
+  .arrow-icon.orange { color: #f97316; }
+  .arrow-icon.amber { color: #f59e0b; }
+  .arrow-icon.cyan { color: #06b6d4; }
+
+  /* Middle connection area */
+  .conn-left, .conn-right {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+  }
+  .conn-line {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    width: 100%;
+    justify-content: center;
+  }
+  .dash-line {
+    height: 2px;
+    flex: 1;
+    max-width: 60px;
+  }
+  .dash-line.blue { background: repeating-linear-gradient(90deg, #3b82f6 0, #3b82f6 6px, transparent 6px, transparent 10px); }
+  .dash-line.green { background: repeating-linear-gradient(90deg, #10b981 0, #10b981 6px, transparent 6px, transparent 10px); }
+  .dash-line.orange { background: repeating-linear-gradient(90deg, #f97316 0, #f97316 6px, transparent 6px, transparent 10px); }
+  .dash-line.amber { background: repeating-linear-gradient(90deg, #f59e0b 0, #f59e0b 6px, transparent 6px, transparent 10px); }
+  .dash-line.cyan { background: repeating-linear-gradient(90deg, #06b6d4 0, #06b6d4 6px, transparent 6px, transparent 10px); }
+
+  /* Row layout helpers */
+  .row-entity { grid-column: 1; }
+  .row-center { grid-column: 2; }
+  .row-entity-r { grid-column: 3; }
+  .span-full { grid-column: 1 / -1; }
+
+  /* Separator */
+  .sep { height: 20px; }
+
+  /* Legend */
+  .legend {
+    margin-top: 28px;
+    display: flex; gap: 28px;
+    justify-content: center;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 8px;
+    font-size: 11px; color: #94a3b8;
+  }
+  .legend-box {
+    width: 28px; height: 16px;
+    border: 2px solid #94a3b8; border-radius: 4px;
+  }
+  .legend-circle {
+    width: 20px; height: 20px;
+    border: 2px solid #6366f1; border-radius: 50%;
+  }
+
+  /* Description */
+  .desc {
+    margin-top: 36px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 14px;
+    padding: 24px;
+  }
+  .desc h2 { font-size: 16px; font-weight: 800; margin-bottom: 16px; }
+  .desc table { width: 100%; border-collapse: collapse; }
+  .desc th {
+    text-align: left; padding: 8px 12px;
+    background: rgba(99,102,241,0.1);
+    font-size: 11px; font-weight: 700; color: #818cf8;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .desc th:first-child { border-radius: 6px 0 0 6px; }
+  .desc th:last-child { border-radius: 0 6px 6px 0; }
+  .desc td {
+    padding: 8px 12px; font-size: 12px; color: #cbd5e1;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+  }
+  .desc tr:last-child td { border-bottom: none; }
+  .tag {
+    display: inline-block; padding: 2px 8px; border-radius: 4px;
+    font-size: 10px; font-weight: 700;
+  }
+  .tag-b { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .tag-g { background: rgba(16,185,129,0.15); color: #34d399; }
+  .tag-o { background: rgba(249,115,22,0.15); color: #fb923c; }
+  .tag-a { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .tag-c { background: rgba(6,182,212,0.15); color: #22d3ee; }
+  .dir-in { color: #93c5fd; font-weight: 600; }
+  .dir-out { color: #86efac; font-weight: 600; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <div class="title-area">
+    <h1>Context Diagram</h1>
+    <div class="sub">Garbage Classification System with YOLOv8</div>
+    <div class="badge">DFD Level 0</div>
+  </div>
+
+  <!-- ========== DIAGRAM ========== -->
+
+  <!-- Row 1: User -->
+  <div style="display:flex; align-items:center; justify-content:center; gap:0; margin-bottom:8px;">
+    <div class="entity entity-blue">
+      <span class="entity-emoji">👤</span>
+      <div class="entity-name">User</div>
+      <div class="entity-sub">ผู้ใช้งาน (มือถือ)</div>
+    </div>
+  </div>
+
+  <!-- Arrow: User ↔ System -->
+  <div style="display:flex; justify-content:center; gap:40px; margin-bottom:8px;">
+    <div style="text-align:center;">
+      <div class="flow-tag flow-in">📸 รูปภาพขยะ</div>
+      <div style="color:#3b82f6; font-size:18px;">↓</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="color:#10b981; font-size:18px;">↑</div>
+      <div class="flow-tag flow-out">📊 ผลจำแนก + แนะนำถัง</div>
+    </div>
+  </div>
+
+  <!-- Row 2: Main Row — Admin | System | PostgreSQL -->
+  <div style="display:flex; align-items:center; justify-content:center; gap:0;">
+
+    <!-- Left: Admin -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+      <div class="entity entity-green">
+        <span class="entity-emoji">🛠️</span>
+        <div class="entity-name">Administrator</div>
+        <div class="entity-sub">ผู้ดูแลระบบ</div>
+      </div>
+    </div>
+
+    <!-- Arrow: Admin ↔ System -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:0 16px;">
+      <div style="display:flex; align-items:center; gap:4px;">
+        <div class="flow-tag flow-in" style="font-size:8px;">⚙️ จัดการ / Retrain</div>
+        <div style="color:#10b981;">→</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <div style="color:#10b981;">←</div>
+        <div class="flow-tag flow-out" style="font-size:8px;">📊 สถิติ / รายงาน</div>
+      </div>
+    </div>
+
+    <!-- Center: System -->
+    <div class="system">
+      <span class="system-emoji">🗑️</span>
+      <div class="system-name">Garbage<br>Classification<br>System</div>
+      <div class="system-tech">FastAPI + YOLOv8n-cls</div>
+      <div class="system-id">PROCESS 0</div>
+    </div>
+
+    <!-- Arrow: System ↔ PostgreSQL -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:4px; padding:0 16px;">
+      <div style="display:flex; align-items:center; gap:4px;">
+        <div style="color:#f97316;">→</div>
+        <div class="flow-tag flow-out" style="font-size:8px;">💾 บันทึกผลทำนาย</div>
+      </div>
+      <div style="display:flex; align-items:center; gap:4px;">
+        <div class="flow-tag flow-in" style="font-size:8px;">📋 ประวัติ / สถิติ</div>
+        <div style="color:#f97316;">←</div>
+      </div>
+    </div>
+
+    <!-- Right: PostgreSQL -->
+    <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
+      <div class="entity entity-orange">
+        <span class="entity-emoji">🐘</span>
+        <div class="entity-name">PostgreSQL</div>
+        <div class="entity-sub">ฐานข้อมูล</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Arrow: System ↔ Bottom -->
+  <div style="display:flex; justify-content:center; gap:80px; margin-top:8px;">
+    <div style="text-align:center;">
+      <div style="color:#f59e0b; font-size:18px;">↑</div>
+      <div class="flow-tag flow-in">📦 Dataset 19,759 รูป</div>
+    </div>
+    <div style="text-align:center;">
+      <div style="color:#06b6d4; font-size:18px;">↓</div>
+      <div class="flow-tag flow-out">🐳 Deploy Container</div>
+    </div>
+  </div>
+
+  <!-- Row 3: Kaggle + Docker -->
+  <div style="display:flex; justify-content:center; gap:60px; margin-top:8px;">
+    <div class="entity entity-amber">
+      <span class="entity-emoji">📦</span>
+      <div class="entity-name">Kaggle Dataset</div>
+      <div class="entity-sub">แหล่งข้อมูลภาพขยะ</div>
+    </div>
+    <div class="entity entity-cyan">
+      <span class="entity-emoji">🐳</span>
+      <div class="entity-name">Docker</div>
+      <div class="entity-sub">Container Runtime</div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item">
+      <div class="legend-box"></div>
+      <span>External Entity (สิ่งภายนอก)</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-circle"></div>
+      <span>Process (ระบบ)</span>
+    </div>
+    <div class="legend-item">
+      <span class="flow-tag flow-in" style="font-size:9px;">→ Data เข้า</span>
+    </div>
+    <div class="legend-item">
+      <span class="flow-tag flow-out" style="font-size:9px;">← Data ออก</span>
+    </div>
+  </div>
+
+  <!-- Description Table -->
+  <div class="desc">
+    <h2>รายละเอียด Data Flow</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Entity</th>
+          <th>ทิศทาง</th>
+          <th>Data Flow</th>
+          <th>รายละเอียด</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="tag tag-b">User</span></td>
+          <td><span class="dir-in">→ เข้า</span></td>
+          <td>รูปภาพขยะ</td>
+          <td>ผู้ใช้ถ่ายรูปขยะผ่าน React Native แล้วส่งไป API (HTTP POST)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-b">User</span></td>
+          <td><span class="dir-out">← ออก</span></td>
+          <td>ผลจำแนก + แนะนำถัง</td>
+          <td>ส่งกลับ: ประเภทขยะ, confidence, ถังที่ควรทิ้ง (JSON)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-g">Admin</span></td>
+          <td><span class="dir-in">→ เข้า</span></td>
+          <td>จัดการระบบ / Retrain</td>
+          <td>เพิ่ม dataset, สั่ง retrain โมเดล, ตั้งค่า config</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-g">Admin</span></td>
+          <td><span class="dir-out">← ออก</span></td>
+          <td>สถิติ / รายงาน</td>
+          <td>ดู confusion matrix, accuracy, สถิติขยะแต่ละจุด</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-o">PostgreSQL</span></td>
+          <td><span class="dir-out">→ เก็บ</span></td>
+          <td>บันทึกผลทำนาย</td>
+          <td>เก็บ class, confidence, timestamp, ตำแหน่งจุดทิ้ง</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-o">PostgreSQL</span></td>
+          <td><span class="dir-in">← ดึง</span></td>
+          <td>ประวัติ / สถิติ</td>
+          <td>ดึงข้อมูลมาแสดง dashboard, วิเคราะห์ bias</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-a">Kaggle</span></td>
+          <td><span class="dir-in">→ เข้า</span></td>
+          <td>Dataset รูปภาพขยะ</td>
+          <td>Garbage Classification V2: 19,759 รูป, 10 classes</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-c">Docker</span></td>
+          <td><span class="dir-out">→ deploy</span></td>
+          <td>Container Deployment</td>
+          <td>บรรจุ FastAPI + YOLOv8 + PostgreSQL เป็น container</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,72 @@
+"""
+train_clahe_sam_v2.py
+เทรนโมเดลบน dataset ที่ผ่าน CLAHE + SAM แบบไม่มี fallback + พื้นหลังขาว (garbage_dataset_cls_clahe_sam_v2)
+ใช้ config เดียวกับโมเดลอื่นทุกตัว (640px, 150ep, AdamW, augmentation ครบ) -> เทียบได้ตรง
+
+ต้องรัน preprocess_clahe_sam_v2.py ให้เสร็จก่อน
+รัน:
+    python train_clahe_sam_v2.py
+โมเดลจะถูกบันทึกที่: runs/classify/runs/garbage_cls_clahe_sam_v2/weights/best.pt
+"""
+import os, sys, io
+import torch
+sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding="utf-8")
+
+DATA = "garbage_dataset_cls_clahe_sam_v2"
+NAME = "garbage_cls_clahe_sam_v2"
+
+
+def main():
+    from config import YOLOGarbageConfig
+    from ultralytics import YOLO
+
+    cfg = YOLOGarbageConfig()
+    device = "cuda" if torch.cuda.is_available() else "cpu"
+
+    if not os.path.isdir(os.path.join(DATA, "train")):
+        print(f"❌ ไม่พบ {DATA}/ — รัน preprocess_clahe_sam_v2.py ก่อน")
+        return
+
+    print("=" * 60)
+    print(f"  Train CLAHE+SAM v2 (no fallback, white bg)  |  device={device.upper()}")
+    print(f"  data={DATA}  epochs={cfg.EPOCHS}  imgsz={cfg.IMG_SIZE}  opt={cfg.OPTIMIZER}")
+    print("=" * 60)
+
+    model = YOLO(cfg.CLS_MODEL)
+    model.train(
+        data=DATA,
+        epochs=cfg.EPOCHS,
+        imgsz=cfg.IMG_SIZE,
+        batch=cfg.BATCH_SIZE,
+        lr0=cfg.LEARNING_RATE,
+        optimizer=cfg.OPTIMIZER,
+        device=device,
+        project=cfg.RUNS_DIR,
+        name=NAME,
+        exist_ok=True,
+        pretrained=True,
+        patience=cfg.PATIENCE,
+        save=True,
+        save_period=10,
+        plots=True,
+        verbose=True,
+        degrees=cfg.DEGREES,
+        translate=cfg.TRANSLATE,
+        scale=cfg.SCALE,
+        fliplr=cfg.FLIPLR,
+        hsv_h=cfg.HSV_H,
+        hsv_s=cfg.HSV_S,
+        hsv_v=cfg.HSV_V,
+        erasing=cfg.ERASING,
+        label_smoothing=cfg.LABEL_SMOOTHING,
+        cos_lr=cfg.COS_LR,
+    )
+
+    print("\n  ประเมินผล...")
+    m = model.val()
+    print(f"  Top-1: {m.top1*100:.2f}%   Top-5: {m.top5*100:.2f}%")
+    print(f"\n  โมเดล: runs/classify/runs/{NAME}/weights/best.pt")
+
+
+if __name__ == "__main__":
+    main()
