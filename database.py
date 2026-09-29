@@ -34,6 +34,11 @@ def _build_database_url() -> str:
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql://", 1)
 
+    # ระบุ driver ให้ชัด: SQLAlchemy 2.1 เปลี่ยนค่าเริ่มต้นของ postgresql://
+    # จาก psycopg2 ไปเป็น psycopg (v3) ซึ่งคนละแพ็กเกจกับที่ติดตั้งไว้
+    if url.startswith("postgresql://"):
+        url = url.replace("postgresql://", "postgresql+psycopg2://", 1)
+
     return url
 
 
